@@ -1,0 +1,4 @@
+interface:
+  display_name: "PRD to Knowledge"
+  short_description: "Convert PRDs into modular UX knowledge docs"
+  default_prompt: "Use $prd-to-knowledge to convert this PRD into modular UX/UI and frontend knowledge documents."
