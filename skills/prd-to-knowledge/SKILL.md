@@ -1,75 +1,108 @@
 ---
 name: prd-to-knowledge
-description: Convert long, messy, or semi-structured product requirement documents into modular Markdown knowledge files for UX/UI design, frontend implementation, and product alignment, including screenshots and generated diagrams when they make the output clearer. Use when Codex is asked to analyze PRDs, extract requirements, decompose features, turn product specs into a knowledge base, summarize user journeys, define information architecture, identify edge cases, create per-feature design/development context, preserve PRD screenshots, or generate flowcharts, relationship diagrams, state diagrams, or visual explanations from requirement docs.
+description: 将模糊产品想法、几句话需求、截图、零散笔记或已有 PRD 转换为成熟需求文档，以及面向 UX/UI 设计、前端实现和产品对齐的模块化 Markdown 知识文件。适用于细化不清晰需求、撰写或优化 PRD、澄清产品逻辑、推断场景、定义用户、用户旅程、信息架构、交互行为、边界场景、权限、状态、验收标准，或将长篇、混乱、半结构化 PRD 转换为可实现的知识文件，并在有帮助时保留截图或生成图示。
 ---
 
 # PRD to Knowledge
 
-## Overview
+## 概述
 
-Transform raw PRDs into concise, high-signal knowledge artifacts. Prioritize context that helps UX/UI designers and frontend engineers make good decisions: goals, user journeys, information architecture, interaction behavior, states, constraints, visual evidence, diagrams, and open questions.
+将模糊产品输入或原始 PRD 转换为简洁、高信息密度的需求与知识产物。优先提炼能帮助产品、UX/UI、前端协作者做决策的内容：目标、用户、场景、用户旅程、信息架构、交互行为、状态、约束、验收标准、视觉证据、图示和待确认问题。
 
-## Workflow
+## 模式选择
 
-1. **Ingest and deconstruct**: Read the source PRD deeply. Identify independent feature modules, user-facing objects, workflows, panels, pages, permissions, and stateful entities.
-2. **Extract visual evidence**: If the source file contains screenshots, diagrams, architecture images, tables, or annotated flows, extract or preserve the useful images under `0_Knowledge/assets/` or a user-specified assets folder. Name images with the related module slug, such as `model-square-list-screenshot.png`.
-3. **Filter noise**: Remove meeting notes, project scheduling, vague visual preferences, stakeholder opinions without product logic, and duplicated wording. Preserve business rules, user intent, constraints, screenshots that clarify behavior, and unresolved ambiguity.
-4. **Split into files**: Create one Markdown file per feature module under `0_Knowledge/` unless the user specifies another target directory. Do not collapse all modules into one long document.
-5. **Name files consistently**: Use lowercase English slugs with hyphens, such as `0_Knowledge/entity-list-restructure.md`. If the source feature name is Chinese, translate the filename but keep the original feature title inside the document.
-6. **Choose text or visuals per topic**: For each module, decide whether a screenshot, generated diagram, table, or text explanation is clearest. Use diagrams for relationships, flow, state transitions, and architecture; use screenshots for concrete UI evidence; use text for simple rules or ambiguous content.
-7. **Structure each module**: Follow the single-file output format in `references/output-format.md`.
-8. **Surface ambiguity**: Add explicit open questions when the PRD lacks users, triggers, permissions, data rules, empty states, error states, recovery paths, or when a screenshot is unclear.
-9. **Keep it implementation-useful**: Write for downstream design and frontend work. Extract actual behavior and constraints instead of producing generic product summaries.
+根据用户输入选择一种模式：
 
-## Module Detection
+- **模式 A：PRD 拆解**：当用户提供已有 PRD、产品规格说明、长篇笔记、截图、半结构化需求内容，或明确要求将 PRD 转换为知识库时使用。
+- **模式 B：需求孵化**：当用户只提供模糊想法、简短功能需求、零散思路或几句话，并希望帮助整理成成熟需求文档时使用。
 
-Treat each of these as a likely separate knowledge file:
+## 模式 B：需求孵化流程
 
-- A distinct page, panel, flow, or feature area.
-- A reusable entity or list that has its own filters, states, permissions, or actions.
-- A workflow with a clear beginning, happy path, and alternative paths.
-- A configuration surface, parameter panel, or rule editor.
-- A meaningful frontend component family, such as table management, batch operation, import/export, search/filter, review/approval, or notification.
+当源需求不清晰或不完整时，先使用该模式，再进入拆解。目标是给用户一份可调整的结构化草稿，而不是一开始就要求用户回答大量问题。
 
-Merge modules only when they cannot be understood or implemented independently.
+1. **保留原始输入**：保留用户原话，并识别可能的功能、产品对象、用户动作、预期结果和业务意图。
+2. **建立假设地图**：整理可能的目标、用户、场景、页面/模块、核心对象、流程、权限、状态、风险和未知点。
+3. **区分确定性**：将内容标记为 `已明确`、`推断` 或 `待确认`。
+4. **只问阻塞问题**：只有当答案会改变产品方向、目标用户、核心流程或主要范围边界时，才最多提出 3 个聚焦问题。其他情况先基于合理假设继续。
+5. **生成 V0 需求文档**：遵循 `references/refined-prd-format.md`。包含目标、用户、场景、范围、用户流程、页面/模块拆解、交互行为、空/加载/错误状态、权限、数据规则、验收标准和待确认问题。
+6. **降低用户调整成本**：指出最值得用户先调整的部分，例如业务目标、用户角色、核心场景、功能范围和流程。优先使用“我先按以下假设整理，你可以直接改不对的地方”，而不是提出大量开放式问题。
+7. **必要时迭代一次**：如果用户修正假设，更新需求文档。只保留仍然有效的既有结论。
+8. **再按需拆解**：当 V0 需求文档足够稳定后，再使用模式 A 创建模块化知识文件。如果用户尚未要求生成文件，先建议下一步，而不是静默生成大量文件。
 
-## Output Rules
+## 模式 A：PRD 拆解流程
 
-- Create Markdown files, not a single giant answer, when the user provides a substantial PRD or asks for a knowledge base.
-- Start each file with `Feature: [module name]`.
-- Use clear Chinese headings when the input is Chinese; preserve essential English domain terms in parentheses when useful.
-- Prefer bullets and numbered flows over prose blocks.
-- Include concrete edge cases, alternative paths, empty/loading/error states, permission limits, and data constraints.
-- Add a `视觉辅助 (Visual Aids)` section when an image or diagram makes the requirement easier to understand.
-- Prefer Mermaid diagrams in Markdown for flows, system relationships, state machines, sequence interactions, and information architecture. Use screenshots only when the original image contains UI details, annotations, or visual evidence that cannot be faithfully reconstructed in text.
-- Reference extracted screenshots with relative Markdown image paths, such as `![模型广场列表截图](assets/model-square-list-screenshot.png)`.
-- Add a one-line takeaway before or after each visual so the reader knows what to look for.
-- If a visual would add noise, explicitly keep the explanation textual and do not force a diagram.
-- Avoid inventing business rules. Mark inferences as `推断` and unknowns as `待确认`.
-- Do not include project timeline, staffing, meeting logistics, or generic UI taste unless it affects product behavior.
+1. **吸收并拆解**：深入阅读源 PRD。识别独立功能模块、用户可感知对象、工作流、面板、页面、权限和有状态实体。
+2. **提取视觉证据**：如果源文件包含截图、图表、架构图、表格或带标注流程，提取或保留有用图片到 `0_Knowledge/assets/` 或用户指定的资源目录。图片命名应关联模块 slug，例如 `model-square-list-screenshot.png`。
+3. **过滤噪声**：移除会议记录、项目排期、模糊视觉偏好、没有产品逻辑的个人意见和重复表述。保留业务规则、用户意图、约束、能澄清行为的截图和未解决歧义。
+4. **拆分文件**：除非用户指定其他目标目录，否则在 `0_Knowledge/` 下为每个功能模块创建一个 Markdown 文件。不要把所有模块合并成一篇长文档。
+5. **统一命名**：使用小写英文 slug 和连字符，例如 `0_Knowledge/entity-list-restructure.md`。如果源功能名是中文，文件名翻译为英文，但在文档内保留原始中文功能标题。
+6. **按主题选择表达方式**：为每个模块判断截图、生成图、表格或文字说明哪种最清晰。关系、流程、状态流转和架构优先使用图示；具体 UI 证据使用截图；简单规则或含糊内容使用文字。
+7. **组织模块结构**：遵循 `references/output-format.md` 的单文件输出格式。
+8. **暴露歧义**：当 PRD 缺少用户、触发条件、权限、数据规则、空状态、错误状态、恢复路径，或截图不清晰时，明确添加待确认问题。
+9. **保持可实现**：面向后续设计和前端实现写作。提取真实行为和约束，而不是产出泛泛的产品摘要。
 
-## Visual Decision Rules
+## 用户调整循环
 
-- Use a **screenshot** when the PRD image shows actual UI layout, labels, controls, error states, annotations, or design intent.
-- Use a **flowchart** when the topic is a user journey, happy path, exception path, approval path, import/export path, deployment path, or cross-system handoff.
-- Use a **relationship graph** when the topic involves products, modules, systems, roles, data entities, permissions, or ownership boundaries.
-- Use a **sequence diagram** when timing or back-and-forth interaction matters, such as frontend -> gateway -> cloud -> model repository.
-- Use a **state diagram** when an entity has meaningful states, such as model upload status,上架/下架状态, deployment status, task status, or approval status.
-- Use a **table** when comparing options, rules, permissions, constraints, metrics, or feature differences.
-- Use **text only** when the content is short, linear, uncertain, or when a diagram would repeat the same information with more visual clutter.
+对于需求孵化场景，第一版输出应像一份可编辑的输入脚手架：
 
-## Mermaid Guidance
+- 先给出假设的产品方向和用户原始输入。
+- 用 `已明确`、`推断`、`待确认` 分组，而不是隐藏不确定性。
+- 突出用户最应优先调整的 3-5 个部分。
+- 不要一开始就要求用户补齐完整 PRD 级信息。
+- 如果用户说“继续”“可以”“按这个来”，或要求生成文件，就继续细化或拆分知识文件。
+- 如果用户修正了某个假设，同步更新下游流程、状态、权限和验收标准。
 
-- Keep diagrams small enough to scan. Prefer 5-12 nodes; split larger diagrams.
-- Use Chinese node labels when the output language is Chinese.
-- Quote labels that contain punctuation, parentheses, slashes, or long phrases.
-- Do not use Mermaid to invent missing steps. Mark inferred edges with `推断` in nearby text.
-- Use these Mermaid types:
-  - `flowchart TD` for user flows and process flows.
-  - `flowchart LR` for module/entity relationships.
-  - `sequenceDiagram` for cross-system interactions.
-  - `stateDiagram-v2` for lifecycle/status changes.
+## 模块识别
 
-## References
+以下内容通常应视为独立知识文件：
 
-- Read `references/output-format.md` before writing final knowledge files or when the user asks for a complete reusable output structure.
+- 独立页面、面板、流程或功能区域。
+- 拥有自己的筛选、状态、权限或操作的可复用实体或列表。
+- 有明确起点、主流程和分支路径的工作流。
+- 配置界面、参数面板或规则编辑器。
+- 有意义的前端组件族，例如表格管理、批量操作、导入/导出、搜索/筛选、审核/审批、通知等。
+
+只有当多个模块无法被独立理解或独立实现时，才合并。
+
+## 输出规则
+
+- 当用户提供完整 PRD 或要求知识库时，创建 Markdown 文件，不要只回复一篇长答案。
+- 对于模糊输入，先创建结构化 V0 需求文档。除非用户明确要求，否则不要立即创建大量知识文件。
+- 每个知识文件以 `Feature: [模块名称]` 开头。
+- 输入为中文时使用清晰的中文标题；必要时保留关键英文领域术语。
+- 优先使用项目符号和编号流程，少写大段散文。
+- 包含具体边界场景、分支流程、空/加载/错误状态、权限限制和数据约束。
+- 当图片或图示有助于理解时，添加 `视觉辅助 (Visual Aids)` 小节。
+- 流程、系统关系、状态机、时序交互和信息架构优先使用 Mermaid。只有当原图包含 UI 细节、标注或无法用文字忠实重建的视觉证据时，才使用截图。
+- 使用相对 Markdown 路径引用提取的截图，例如 `![模型广场列表截图](assets/model-square-list-screenshot.png)`。
+- 每个视觉辅助前后添加一句结论，说明读者应关注什么。
+- 如果视觉会增加噪声，明确保持纯文字说明，不要强行画图。
+- 避免编造业务规则。推断内容标记为 `推断`，未知内容标记为 `待确认`。
+- 不要包含项目排期、人力安排、会议事务或泛泛 UI 偏好，除非它们会影响产品行为。
+
+## 视觉决策规则
+
+- 当 PRD 图片展示真实 UI 布局、文案、控件、错误状态、标注或设计意图时，使用**截图**。
+- 当主题是用户旅程、主流程、异常路径、审批路径、导入/导出路径、部署路径或跨系统交接时，使用**流程图**。
+- 当主题涉及产品、模块、系统、角色、数据实体、权限或归属边界时，使用**关系图**。
+- 当前后时序或来回交互很重要时，使用**时序图**，例如 frontend -> gateway -> cloud -> model repository。
+- 当实体有重要生命周期状态时，使用**状态图**，例如模型上传状态、上架/下架状态、部署状态、任务状态或审批状态。
+- 当需要比较选项、规则、权限、约束、指标或功能差异时，使用**表格**。
+- 当内容很短、线性、不确定，或图示只是重复文字时，使用**纯文字**。
+
+## Mermaid 指引
+
+- 图示保持易扫读。优先控制在 5-12 个节点；更大的图拆分处理。
+- 输出为中文时，节点标签使用中文。
+- 包含标点、括号、斜杠或较长文本的标签要加引号。
+- 不要用 Mermaid 编造缺失步骤。推断边应在附近文字中标记 `推断`。
+- 使用这些 Mermaid 类型：
+  - `flowchart TD`：用户流程和处理流程。
+  - `flowchart LR`：模块/实体关系。
+  - `sequenceDiagram`：跨系统交互。
+  - `stateDiagram-v2`：生命周期/状态变化。
+
+## 参考文件
+
+- 在撰写最终知识文件，或用户要求完整可复用输出结构时，先阅读 `references/output-format.md`。
+- 在根据模糊、简短或不完整需求撰写 V0 需求文档前，先阅读 `references/refined-prd-format.md`。
