@@ -1,4 +1,4 @@
 interface:
-  display_name: "需求分析与知识库"
+  display_name: "PRD to Knowledge"
   short_description: "细化模糊需求，或将 PRD 转换为 UX 知识文档"
   default_prompt: "使用 $prd-to-knowledge 将这段需求细化为成熟 PRD，或将这个 PRD 转换为面向 UX/UI 和前端实现的模块化知识文档。"
